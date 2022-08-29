@@ -1,0 +1,61 @@
+data:
+  D: 4.8
+  DiffLossSwitch: 'On'
+  GradNorm: 'Off'
+  GradNorm_alpha: 0.25
+  NoData: 'Off'
+  OperatorType: PINO-MBD
+  PerformanceSwitch: 'Off'
+  Structure_datapath: data/Project_BSA/StructureInfo.mat
+  VirtualSwitch: 'On'
+  Boundary: 'Off'
+  datapath: data/Project_BSA/150.mat
+  inputDim: 7
+  nSlice: 40
+  n_sample: 150
+  n_sample_virtual: 2000
+  name: BSA
+  nt: 1000
+  offset: 0
+  outputDim: 200
+  sub: 1
+  sub_t: 1
+  test_datapath: data/Project_BSA/30.mat
+  test_sample: 30
+  total_num: 100
+  virtual_datapath: data/Project_BSA/VirtualData_2000.mat
+  weights_datapath: data/Project_BSA/Weights_Medium_150.mat
+  weights_datapath_test: data/Project_BSA/Weights_Medium_30.mat
+  weights_datapath_virtual: data/Project_BSA/Weights_Virtual.mat
+log:
+  group: gelu-eqn
+  project: BSA
+model:
+  activation: elu
+  fc_dim: 100
+  layers:
+  - 16
+  - 24
+  - 24
+  - 32
+  - 32
+  modes: 300
+  width: 72
+train:
+  LossFileName: eval5_NoGradNorm
+  base_lr: 0.0005
+  batchsize: 15
+  batchsize_virtual: 100
+  diff_loss: 1
+  epochs: 500
+  f_loss: 1
+  fv_loss: 1
+  ic_loss: 1.0
+  milestones:
+  - 150
+  - 300
+  - 450
+  save_dir: BSARunner/Experiment10
+  save_name: BSA.pt
+  scheduler_gamma: 1.0
+  xy_loss: 1.0

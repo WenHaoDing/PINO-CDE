@@ -1,0 +1,50 @@
+data:
+  name: 'VTCD'
+  datapath: 'data/Project_VTCD/Big_MCM_5000.mat'
+  weights_datapath: 'data/Project_VTCD/Weights_Big_MCM_5000_Medium.mat'
+  test_datapath: 'data/Project_VTCD/Big_MCM_Test_1000.mat'
+  virtual_datapath: 'data/Project_VTCD/VirtualData_10.mat'
+  weights_datapath_virtual : 'data/Project_VTCD/Weights_Virtual.mat'
+  total_num: 10000
+  offset: 0
+  n_sample: 5000
+  n_sample_virtual: 1
+  test_sample: 1000
+  nt: 5000
+  nSlice: 500
+  sub: 1
+  sub_t: 1
+  inputDim: 19
+  outputDim: 14
+  D: 4.5
+  VirtualSwitch: 'Off'
+  PerformanceSwitch: 'On'
+
+model:
+  layers: [16, 24, 24, 32, 32]
+  width: 72
+  modes: 2200
+  fc_dim: 72
+  activation: elu
+
+train:
+  batchsize: 50
+  batchsize_virtual: 300
+  epochs: 300
+  milestones: [150, 300, 450]
+  base_lr: 0.0005
+  scheduler_gamma: 1.0
+  ic_loss: 1.0
+  f_loss: 1.0
+  fv_loss: 0.25
+  xy_loss: 0.0
+  diff_loss: 0.0
+  save_dir: 'VTCDRunner\Test'
+  save_name: 'VTCD.pt'
+  LossFileName: 'LossHistory'
+
+  ckpt: 'checkpoints/VTCDRunner/V3/VTCD_50.pt'
+
+log:
+  project: 'VTCD_Test'
+  group: 'gelu-eqn'

@@ -1,0 +1,56 @@
+data:
+  name: 'VTCD_WithIrre'
+  datapath: 'data/Project_FES/5000.mat'
+  weights_datapath: 'data/Project_FES/Weights_Medium_5000.mat'
+  test_datapath: 'data/Project_FES/1000.mat'
+  weights_datapath_test: 'data/Project_FES/Weights_Medium_1000.mat'
+  Structure_datapath: 'data/Project_FES/StructureInfo.mat'
+  virtual_datapath: 'data/Project_FES/VirtualData_15000.mat'
+  weights_datapath_virtual: 'data/Project_FES/Weights_Virtual.mat'
+  total_num: 2500
+  offset: 0
+  n_sample: 5000
+  n_sample_virtual: 5000
+  test_sample: 1000
+  nt: 1000
+  nSlice: 0
+  sub: 1
+  sub_t: 1
+  inputDim: 4
+  outputDim: 24
+  D: 0.95
+  VirtualSwitch: 'On'
+  PerformanceSwitch: 'On'
+  DiffLossSwitch: 'On'
+  OperatorType: 'PINO-MBD'
+  Boundary: 'Off'
+  NoData: 'Off'
+
+model:
+  layers: [16, 24, 24, 32, 32]
+  width: 96
+  modes: 400
+  fc_dim: 72
+  activation: elu
+
+train:
+  batchsize: 1000
+  batchsize_virtual: 1000
+  epochs: 300
+  milestones: [150, 300, 450]
+  base_lr: 0.001
+  scheduler_gamma: 1.0
+  ic_loss: 1.0
+  f_loss: 1.0
+  fv_loss: 1.0
+  diff_loss: 1.0
+  xy_loss: 1.0
+  save_dir: 'FESRunner/Full'
+  save_name: 'FES.pt'
+  LossFileName: 'LossHistory'
+
+#  ckpt: 'checkpoints/PaperRunner/Test1/FES_125.pt'
+
+log:
+  project: 'VTCD_Test'
+  group: 'gelu-eqn'
