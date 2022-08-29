@@ -1,0 +1,65 @@
+
+!*GET, Par, Entity, ENTNUM, Item1, IT1NUM, Item2, IT2NUM
+!从ANSYS中导出模态频率及振型数据
+ 
+/post1
+
+*get,nodenum,node,,num,max
+
+*set,tempvar,0                !定义临时变量tempvar=0
+
+*set,modenum,200         !定义获取的模态数量为30
+
+
+*dim,modeshp,array,nodenum,3           !定义modeshp数组，维度为节点数量*3
+
+*cfopen,modefile,txt                                !新建一个modefile的txt文件
+
+*do,i,1,modenum,1                                  !循环模态
+
+*get,modefq,mode,i,freq
+
+*get,modeda,mode,i,damp
+
+*vwrite,modefq,modeda,-1,-1
+
+(4e16.8)
+
+set,1,i
+
+!获得每个节点的位移
+
+*do,ii,1,nodenum,1
+
+*get,modeshp(ii,1),node,ii,u,x
+
+*get,modeshp(ii,2),node,ii,u,y
+
+*get,modeshp(ii,3),node,ii,u,z
+
+*enddo
+
+*vwrite,sequ,modeshp(1,1),modeshp(1,2),modeshp(1,3)
+
+(F8.0,3e16.8)
+
+*vwrite,0,0,0,0
+
+(4F8.0)
+
+*enddo
+
+*cfclos 
+
+finish
+
+/AUX2
+FILE,Building,FULL
+HBMAT,STIFF_MATRIX,TXT,,ASCII,STIFF,YES,YES
+HBMAT,MASS_MATRIX,TXT,,ASCII,MASS,YES,YES
+FINI
+
+
+
+
+
