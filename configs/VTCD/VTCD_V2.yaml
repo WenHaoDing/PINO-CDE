@@ -1,0 +1,61 @@
+data:
+  Boundary: 'Off'
+  D: 4.5
+  DiffLossSwitch: 'On'
+  GradNorm: 'Off'
+  GradNorm_alpha: 0.5
+  NoData: 'Off'
+  OperatorType: PINO-MBD
+  PerformanceSwitch: 'On'
+  VirtualSwitch: 'Off'
+  datapath: data/Project_VTCD/10000V2.mat
+  inputDim: 19
+  nSlice: 500
+  n_sample: 10000
+  n_sample_virtual: 1
+  name: VTCD
+  nt: 5000
+  offset: 0
+  outputDim: 14
+  sub: 1
+  sub_t: 1
+  test_datapath: data/Project_VTCD/2000V2.mat
+  test_sample: 1000
+  total_num: 10000
+  virtual_datapath: data/Project_VTCD/VirtualData_10000V2.mat
+  weights_datapath: data/Project_VTCD/Weights_10000V2.mat
+  weights_datapath_virtual: data/Project_VTCD/Weights_VirtualV2.mat
+log:
+  group: gelu-eqn
+  project: VTCD_Test
+model:
+  activation: elu
+  fc_dim: 108
+  layers:
+  - 16
+  - 24
+  - 24
+  - 32
+  - 32
+  modes: 1800
+  width: 72
+train:
+  LossFileName: eval4_GradNorm
+  base_lr: 0.001
+  batchsize: 30
+  batchsize_virtual: 25
+  diff_loss: 1.0
+  epochs: 300
+  f_loss: 0.25
+  fv_loss: 0.025
+  ic_loss: 1.0
+  milestones:
+  - 150
+  - 300
+  - 450
+  save_dir: VTCDRunner/Runner6
+  save_name: VTCD.pt
+  scheduler_gamma: 1.0
+  xy_loss: 1.0
+  ckpt: 'checkpoints/VTCDRunner/V4/VTCD_50.pt'
+

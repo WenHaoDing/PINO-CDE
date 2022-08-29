@@ -1,0 +1,56 @@
+data:
+  name: 'BSA'
+  datapath: 'data/Project_BSA/100.mat'
+  weights_datapath: 'data/Project_BSA/Weights_Medium_100.mat'
+  test_datapath: 'data/Project_BSA/20.mat'
+  weights_datapath_test: 'data/Project_BSA/Weights_Medium_20.mat'
+  Structure_datapath: 'data/Project_BSA/StructureInfo.mat'
+  virtual_datapath: 'data/Project_BSA/VirtualData_1000.mat'
+  weights_datapath_virtual: 'data/Project_BSA/Weights_Virtual.mat'
+  total_num: 100
+  offset: 0
+  n_sample: 100
+  n_sample_virtual: 1000
+  test_sample: 20
+  nt: 1000
+  nSlice: 40
+  sub: 1
+  sub_t: 1
+  inputDim: 7
+  outputDim: 200
+  D: 4.8
+  VirtualSwitch: 'On'
+  PerformanceSwitch: 'On'
+  OperatorType: PINO-MBD
+  DiffLossSwitch: 'Off'
+  GradNorm: 'Off'
+  GradNorm_alpha: 1.5
+
+model:
+  layers: [16, 24, 24, 32, 32]
+  width: 128
+  modes: 300
+  fc_dim: 64
+  activation: elu
+
+train:
+  batchsize: 10
+  batchsize_virtual: 100
+  epochs: 500
+  milestones: [150, 300, 450]
+  base_lr: 0.0005
+  scheduler_gamma: 1.0
+  ic_loss: 1.0
+  f_loss: 1.0
+  fv_loss: 1.0
+  diff_loss: 1.0
+  xy_loss: 1.0
+  save_dir: 'BSARunner\Test2'
+  save_name: 'BSA.pt'
+  LossFileName: 'LossHistory'
+
+#  ckpt: 'checkpoints/PaperRunner/Test1/BSA_125.pt'
+
+log:
+  project: 'VTCD_Test'
+  group: 'gelu-eqn'

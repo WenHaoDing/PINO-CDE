@@ -1,0 +1,52 @@
+data:
+  name: 'BSA'
+  datapath: 'data/Project_BSA/175_Strong.mat'
+  weights_datapath: 'data/Project_BSA/Weights_Medium_175_Strong.mat'
+  test_datapath: 'data/Project_BSA/18_Strong.mat'
+  weights_datapath_test: 'data/Project_BSA/Weights_Medium_18_Strong.mat'
+  Structure_datapath: 'data/Project_BSA/StructureInfo.mat'
+  virtual_datapath: 'data/Project_BSA/VirtualData_1000_Strong.mat'
+  weights_datapath_virtual: 'data/Project_BSA/Weights_Virtual_Strong.mat'
+  total_num: 100
+  offset: 0
+  n_sample: 100
+  n_sample_virtual: 1000
+  test_sample: 15
+  nt: 1000
+  nSlice: 40
+  sub: 1
+  sub_t: 1
+  inputDim: 7
+  outputDim: 200
+  D: 4.8
+  VirtualSwitch: 'On'
+  PerformanceSwitch: 'On'
+
+model:
+  layers: [16, 24, 24, 32, 32]
+  width: 84
+  modes: 400
+  fc_dim: 64
+  activation: elu
+
+train:
+  batchsize: 12
+  batchsize_virtual: 64
+  epochs: 500
+  milestones: [150, 300, 450]
+  base_lr: 0.0005
+  scheduler_gamma: 1.0
+  ic_loss: 0.0
+  f_loss: 1.0
+  fv_loss: 1.0
+  diff_loss: 0.0
+  xy_loss: 1.0
+  save_dir: 'BSARunner\StrongCase'
+  save_name: 'BSA.pt'
+  LossFileName: 'LossHistory'
+
+#  ckpt: 'checkpoints/PaperRunner/Test1/BSA_125.pt'
+
+log:
+  project: 'VTCD_Test'
+  group: 'gelu-eqn'

@@ -1,0 +1,43 @@
+data:
+  name: 'VTCD_WithIrre'
+  datapath: 'data/Project1/15000.mat'
+  weights_datapath: 'data/Project1/Weights_Medium_15000.mat'
+  test_datapath: 'data/Project1/1000.mat'
+  weights_datapath_test: 'data/Project1/Weights_Medium_1000.mat'
+  Structure_datapath: 'data/Project1/StructureInfo.mat'
+  total_num: 15000
+  offset: 0
+  n_sample: 15000
+  test_sample: 1000
+  nt: 1000
+  nSlice: 0
+  sub: 1
+  sub_t: 1
+  inputDim: 4
+  outputDim: 24
+  D: 0.95
+
+model:
+  layers: [16, 24, 24, 32, 32]
+  width: 64
+  modes: 400
+  fc_dim: 64
+  activation: elu
+
+train:
+  batchsize: 300
+  epochs: 300
+  milestones: [150, 300, 450]
+  base_lr: 0.0005
+  scheduler_gamma: 1.0
+  ic_loss: 1.0
+  f_loss: 1
+  xy_loss: 1.0
+  save_dir: 'PaperRunner/Test2_5L'
+  save_name: 'FES.pt'
+
+#  ckpt: 'checkpoints/PaperRunner/Test1/FES_125.pt'
+
+log:
+  project: 'VTCD_Test'
+  group: 'gelu-eqn'

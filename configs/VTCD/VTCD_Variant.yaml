@@ -1,0 +1,42 @@
+data:
+  name: 'VTCD'
+  datapath: 'data/Project_VTCD/Big_MCM_10000.mat'
+  weights_datapath: 'data/Project_VTCD/Weights_Big_MCM_10000_Medium.mat'
+  test_datapath: 'data/Project_VTCD/Big_MCM_Test_1000.mat'
+  total_num: 10000
+  offset: 0
+  n_sample: 10000
+  test_sample: 1000
+  nt: 5000
+  nSlice: 500
+  sub: LongSiyu
+
+  sub_t: 1
+  inputDim: 19
+  outputDim: 14
+  D: 4.5
+
+model:
+  layers: [16, 24, 24, 32, 32]
+  width: 72
+  modes: 2200
+  fc_dim: 72
+  activation: elu
+
+train:
+  batchsize: 50
+  epochs: 400
+  milestones: [150, 300, 450]
+  base_lr: 0.0005
+  scheduler_gamma: 1.0
+  ic_loss: 1.0
+  f_loss: 0.025
+  xy_loss: 1.0
+  save_dir: 'VTCDRunner'
+  save_name: 'VTCD.pt'
+
+#  ckpt: 'checkpoints/VTCDRunner/VTCD.pt'
+
+log:
+  project: 'VTCD_Test'
+  group: 'gelu-eqn'
