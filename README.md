@@ -129,13 +129,17 @@ python3 Runner_BSA_GradNorm.py --config_path configs/BSA/BSA.yaml --mode train
 # Step6: Solution fields and visualization
 Matlab Matlab codes/BSA/Visualization_Animation.m
 ```
-### section III: perform the probability density evolution
+#### section III: perform the probability density evolution
 ```bash
 Matlab PDEM/Evolution_Stress.mat
 ```
-### section IV: statistically obtain probability field and compare with PDEM
+#### section IV: statistically obtain probability field and compare with PDEM
 ```bash
+# Step1: Generate a large amount of predictions with the trained PINO-MBD
+python3 Runner_BSA_GradNorm.py --config_path configs/BSA/BSA.yaml --mode eval_batch 
+# Step2: statistically obtain probability field and maximum stree field through Tensor Operations 
 python3 post processing/Figure_RA.py
+# Step3: Compare with PDEM in Matlab environment
 Matlab PDEM/post.mat
 ```
 We plan to provide links to large files by September 3, 2022
