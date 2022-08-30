@@ -131,7 +131,7 @@ Matlab Matlab codes/BSA/Visualization_Animation.m
 ```
 #### section III: perform the probability density evolution
 ```bash
-Matlab PDEM/Evolution_Stress.mat
+Matlab PDEM/Evolution_Stress.m
 ```
 #### section IV: statistically obtain probability field and compare with PDEM
 ```bash
@@ -140,6 +140,6 @@ python3 Runner_BSA_GradNorm.py --config_path configs/BSA/BSA.yaml --mode eval_ba
 # Step2: statistically obtain probability field and maximum stree field through Tensor Operations 
 python3 post processing/Figure_RA.py
 # Step3: Compare with PDEM in Matlab environment
-Matlab PDEM/post.mat
+Matlab PDEM/post.m
 ```
 We plan to provide links to large files by September 3, 2022
