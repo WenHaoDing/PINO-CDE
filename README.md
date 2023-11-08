@@ -163,7 +163,7 @@ Guide for reproducing figures in the author's dissertation. *Plot codes for the 
 
 ## Datasets
 
-Due to the GitHub's file size limit, we have uploaded the datasets for all three examples to Zendo. Users can refer to the following links:
+Due to the GitHub's file size limit, we have uploaded the datasets for all three examples to Zendo. Users can refer to the following links. It is recommended that the users refer to the config files when they download the datsets.
 
 > [1] W. Ding, Q. He, S. J. University, P. Wang, Q. Wang, Solving Coupled Differential Equation Groups Using PINO-CDE (Toy
 Example) (Jun. 2023). doi:10.5281/zenodo.8398559.
