@@ -64,7 +64,7 @@ graph LR
 	E --> G[G: Recover stress fields]
 	E --> H[H: Reliability assessment]
 ~~~
-## Detailed instructions
+## Detailed instructions for your PINO-MBD
 ### The toy example
 #### section I: generate mode shape functions
 ```bash
@@ -142,4 +142,35 @@ python3 post processing/Figure_RA.py
 # Step3: Compare with PDEM in Matlab environment
 Matlab PDEM/post.m
 ```
-We plan to provide links to large files by September 3, 2022
+## Reproduce figures in the author's paper and dissertation
+Introduction: *This part of the readme file is created for recreating the figures in the author's paper and dissertation.*
+
+**Readers are welcome to use the package as they like. Citation links are provided below. At the same time, the author would like emphasize that PINO-MBD was proposed based on the theory of PINO[3]. The author would like to thank Mr. Zongyi Li and his team members.**
+
+> [1] Ding, W., He, Q., Tong, H., Wang, Q. & Wang, P. Solving practical multi-body dynamics
+problems using a single neural operator. Preprint at http://arxiv.org/abs/2210.00222 (2022).
+> 
+> [2] 丁文灏. 通用多体动力学神经元算子及其在车辆-轨道耦合动力学中的应用研究[D] (RESEARCH ON GENERAL NEURAL
+OPERATOR FOR MULTIBODY DYNAMICS AND ITS APPLCIATIONS IN VEHICLETRACK COUPLED DYNAMICS). (2023)
+> 
+> [3] Li Z et al.Physics-Informed Neural Operator for Learning Partial Differential
+Equations.Preprint at https://arxiv.org/pdf/2111.03794.pdf,2021.
+
+Guide for reproducing figures in the online paper: *Plot codes for the online paper are all contained in the dossier named 'plot_paper'. In there you will each part of each figure has its own codes. Before using these codes, you will need to train your PINO-MBD as instructed above.*
+
+Guide for reproducing figures in the author's dissertation. *Plot codes for the dissertation are all contained in the dossier named 'plot_dissertation'. In there you will each part of each figure has its own codes. Before using these codes, you will need to train your PINO-MBD as instructed above.*
+
+
+## Datasets
+
+Due to the GitHub's file size limit, we have uploaded the datasets for all three examples to Zendo. Users can refer to the following links:
+
+> [1] W. Ding, Q. He, S. J. University, P. Wang, Q. Wang, Solving Coupled Differential Equation Groups Using PINO-CDE (Toy
+Example) (Jun. 2023). doi:10.5281/zenodo.8398559.
+> 
+> [2] W. Ding, Q. He, H. Tong, P. Wang, Q. Wang, Solving Coupled Differential Equation Groups Using PINO-CDE (VTCD) (Jun.
+2023). doi:10.5281/zenodo.8398835.
+> 
+> [3] W. Ding, Q. He, H. Tong, P. Wang, Q. Wang, Solving Coupled Differential Equation Groups Using PINO-CDE (Uncertainty
+Propagation) (Jun. 2023). doi:10.5281/zenodo.8414398.
+> 
