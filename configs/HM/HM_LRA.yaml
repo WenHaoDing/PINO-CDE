@@ -1,0 +1,64 @@
+data:
+  Boundary: 'Off'
+  D: 1.0
+  DiffLossSwitch: 'On'
+  GradNorm: 'Off'
+  GradNorm_alpha: 1.5
+  NoData: 'Off'
+  OperatorType: PINO-MBD
+  PerformanceSwitch: 'Off'
+  Structure_datapath: data/Project_HM/StructureInfo.mat
+  VirtualSwitch: 'Off'
+  datapath: data/Project_HM/5000_V3.mat
+  inputDim: 10
+  nSlice: 0
+  n_sample: 1200
+  n_sample_virtual: 2500
+  name: Hypothetical Mechanism
+  nt: 1000
+  offset: 0
+  outputDim: 43
+  sub: 1
+  sub_t: 1
+  test_datapath: data/Project_HM/500_V3.mat
+  test_sample: 1
+  total_num: 5000
+  virtual_datapath: data/Project_HM/VirtualData_2500_V3.mat
+  weights_datapath: data/Project_HM/Weights_Medium_5000_V3.mat
+  weights_datapath_test: data/Project_HM/Weights_Medium_500_V3.mat
+  weights_datapath_virtual: data/Project_HM/Weights_Virtual_V4.mat
+log:
+  Case: HM_LRA_dde1
+  group: gelu-eqn
+  project: HM_LRA
+model:
+  activation: elu
+  depth: 3
+  fc_dep: 2
+  fc_dim: 128
+  layers:
+  - 16
+  - 24
+  - 24
+  - 32
+  - 32
+  modes: 400
+  width: 108
+train:
+  LossFileName: HM_LRA_dde1
+  base_lr: 0.001
+  batchsize: 100
+  batchsize_virtual: 200
+  diff_loss: 1.0
+  epochs: 301
+  f_loss: 1.0
+  fv_loss: 1.0
+  ic_loss: 1.0
+  milestones:
+  - 150
+  - 300
+  - 450
+  save_dir: HMRunner/LRA
+  save_name: HM_LRA_dde1.pt
+  scheduler_gamma: 1.0
+  xy_loss: 1.0
