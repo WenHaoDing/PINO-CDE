@@ -181,7 +181,7 @@ class FNN1d_VTCD(nn.Module):
 
 
 class FNN1d_VTCD_GradNorm(nn.Module):
-    def __init__(self, modes, width, fc_dim, inputDim, outputDim, task_number, layers=None):
+    def __init__(self, modes, depth, width, fc_dim, fc_dep, inputDim, outputDim, task_number, layers=None):
         super(FNN1d_VTCD_GradNorm, self).__init__()
 
         """
@@ -203,7 +203,148 @@ class FNN1d_VTCD_GradNorm(nn.Module):
         self.outputDim = outputDim
 
         if layers is None:
-            layers = [width] * 4
+            layers = [width] * (depth + 1)
+
+        self.fc0 = nn.Linear(self.inputDim, layers[0])  # input channel is 2: (a(x), x)
+
+        self.sp_convs = nn.ModuleList([SpectralConv1d(
+            in_size, out_size, self.modes1) for in_size, out_size in zip(layers, layers[1:])])
+
+        self.ws = nn.ModuleList([nn.Conv1d(in_size, out_size, 1)
+                                 for in_size, out_size in zip(layers, layers[1:])])
+
+        self.fc_width = fc_dim
+        self.fc_dep = fc_dep
+        if fc_dep > 2:
+            layers_fcn = [fc_dim] * (fc_dep - 2 + 1)
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(in_size, out_size) for in_size, out_size in
+                                       zip(layers_fcn, layers_fcn[1:])] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        elif fc_dep == 2:
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        self.task_weights = torch.nn.Parameter(torch.ones(task_number).float())
+
+    def forward(self, x):
+        length = len(self.ws)
+        length_fcn = len(self.fcns)
+
+        x = self.fc0(x)
+        x = x.permute(0, 2, 1)
+
+        for i, (speconv, w) in enumerate(zip(self.sp_convs, self.ws)):
+            x1 = speconv(x)
+            x2 = w(x)
+            x = x1 + x2
+            if i != length - 1:
+                x = F.elu(x)
+
+        x = x.permute(0, 2, 1)
+
+        for i, fcn in enumerate(self.fcns):
+            x = fcn(x)
+            if i != length_fcn - 1:
+                x = F.elu(x)
+        return x
+
+    def get_last_layer(self):
+        return self.fc3
+
+
+class FNN1d_VTCD_LRA(nn.Module):
+    def __init__(self, modes, depth, width, fc_dim, fc_dep, inputDim, outputDim, layers=None):
+        super(FNN1d_VTCD_LRA, self).__init__()
+
+        """
+        The overall network. It contains several layers of the Fourier layer.
+        1. Lift the input to the desire channel dimension by self.fc0 .
+        2. 4 layers of the integral operators u' = (W + K)(u).
+            W defined by self.w; K defined by self.conv .
+        3. Project from the channel space to the output space by self.fc1 and self.fc2.
+
+        input: the solution of the initial condition and location (a(x), x)
+        input shape: (batchsize, x=s, c=2)
+        output: the solution of a later timestep
+        output shape: (batchsize, x=s, c=1)
+        """
+
+        self.modes1 = modes
+        self.width = width
+        self.inputDim = inputDim
+        self.outputDim = outputDim
+
+        if layers is None:
+            layers = [width] * (depth + 1)
+
+        self.fc0 = nn.Linear(self.inputDim, layers[0])  # input channel is 2: (a(x), x)
+
+        self.sp_convs = nn.ModuleList([SpectralConv1d(
+            in_size, out_size, self.modes1) for in_size, out_size in zip(layers, layers[1:])])
+
+        self.ws = nn.ModuleList([nn.Conv1d(in_size, out_size, 1)
+                                 for in_size, out_size in zip(layers, layers[1:])])
+
+        self.fc_width = fc_dim
+        self.fc_dep = fc_dep
+        if fc_dep > 2:
+            layers_fcn = [fc_dim] * (fc_dep - 2 + 1)
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(in_size, out_size) for in_size, out_size in
+                                       zip(layers_fcn, layers_fcn[1:])] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        elif fc_dep == 2:
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        # self.task_weights = torch.nn.Parameter(torch.ones(task_number).float())
+
+    def forward(self, x):
+        length = len(self.ws)
+        length_fcn = len(self.fcns)
+
+        x = self.fc0(x)
+        x = x.permute(0, 2, 1)
+
+        for i, (speconv, w) in enumerate(zip(self.sp_convs, self.ws)):
+            x1 = speconv(x)
+            x2 = w(x)
+            x = x1 + x2
+            if i != length - 1:
+                x = F.elu(x)
+
+        x = x.permute(0, 2, 1)
+
+        for i, fcn in enumerate(self.fcns):
+            x = fcn(x)
+            if i != length_fcn - 1:
+                x = F.elu(x)
+        return x
+
+
+class FNN1d_VTBCD(nn.Module):
+    def __init__(self, modes, width, fc_dim, inputDim, outputDim, layers=None):
+        super(FNN1d_VTBCD, self).__init__()
+
+        """
+        The overall network. It contains several layers of the Fourier layer.
+        1. Lift the input to the desire channel dimension by self.fc0 .
+        2. 4 layers of the integral operators u' = (W + K)(u).
+            W defined by self.w; K defined by self.conv .
+        3. Project from the channel space to the output space by self.fc1 and self.fc2.
+
+        input: the solution of the initial condition and location (a(x), x)
+        input shape: (batchsize, x=s, c=2)
+        output: the solution of a later timestep
+        output shape: (batchsize, x=s, c=1)
+        """
+
+        self.modes1 = modes
+        self.width = width
+        self.inputDim = inputDim
+        self.outputDim = outputDim
+
+        if layers is None:
+            layers = [width] * 3
 
         self.fc0 = nn.Linear(self.inputDim, layers[0])  # input channel is 2: (a(x), x)
 
@@ -220,7 +361,6 @@ class FNN1d_VTCD_GradNorm(nn.Module):
         self.bn1 = nn.BatchNorm1d(2500)
         self.bnW = nn.BatchNorm1d(width)
         self.dropout = nn.Dropout(p=0.5)
-        self.task_weights = torch.nn.Parameter(torch.ones(task_number).float())
 
     def forward(self, x):
         length = len(self.ws)
@@ -243,8 +383,6 @@ class FNN1d_VTCD_GradNorm(nn.Module):
         x = self.fc3(x)
         return x
 
-    def get_last_layer(self):
-        return self.fc3
 
 class FNN1d_FES(nn.Module):
     def __init__(self, modes, width, fc_dim, inputDim, outputDim, layers=None):
@@ -375,7 +513,7 @@ class FNN1d_BSA(nn.Module):
 
 
 class FNN1d_BSA_GradNorm(nn.Module):
-    def __init__(self, modes, width, fc_dim, inputDim, outputDim, task_number, layers=None):
+    def __init__(self, modes, depth, width, fc_dim, fc_dep, inputDim, outputDim, task_number, layers=None):
         super(FNN1d_BSA_GradNorm, self).__init__()
 
         """
@@ -397,7 +535,7 @@ class FNN1d_BSA_GradNorm(nn.Module):
         self.outputDim = outputDim
 
         if layers is None:
-            layers = [width] * 3
+            layers = [width] * (depth + 1)
 
         self.fc0 = nn.Linear(self.inputDim, layers[0])  # input channel is 2: (a(x), x)
 
@@ -408,17 +546,23 @@ class FNN1d_BSA_GradNorm(nn.Module):
                                  for in_size, out_size in zip(layers, layers[1:])])
 
         self.fc_width = fc_dim
-        self.fc1 = nn.Linear(layers[-1], self.fc_width)
-        self.fc2 = nn.Linear(self.fc_width, self.fc_width)
-        self.fc3 = nn.Linear(self.fc_width, self.outputDim)
-
-        self.bn1 = nn.BatchNorm1d(2500)
-        self.bnW = nn.BatchNorm1d(width)
-        self.dropout = nn.Dropout(p=0.5)
+        self.fc_dep = fc_dep
+        if fc_dep > 2:
+            layers_fcn = [fc_dim] * (fc_dep - 2 + 1)
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(in_size, out_size) for in_size, out_size in
+                                       zip(layers_fcn, layers_fcn[1:])] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        elif fc_dep == 2:
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        elif fc_dep == 1:
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.outputDim)])
         self.task_weights = torch.nn.Parameter(torch.ones(task_number).float())
 
     def forward(self, x):
         length = len(self.ws)
+        length_fcn = len(self.fcns)
 
         x = self.fc0(x)
         x = x.permute(0, 2, 1)
@@ -431,15 +575,16 @@ class FNN1d_BSA_GradNorm(nn.Module):
                 x = F.elu(x)
 
         x = x.permute(0, 2, 1)
-        x = self.fc1(x)
-        x = F.elu(x)
-        x = self.fc2(x)
-        x = F.elu(x)
-        x = self.fc3(x)
+
+        for i, fcn in enumerate(self.fcns):
+            x = fcn(x)
+            if i != length_fcn - 1:
+                x = F.elu(x)
         return x
 
     def get_last_layer(self):
-        return self.fc3
+        return self.fcns[-1]
+
 
 class FNN1d_ANN(nn.Module):
     def __init__(self, inputDim, outputDim, layers=None):
@@ -476,7 +621,7 @@ class FNN1d_ANN(nn.Module):
 
 
 class FNN1d_HM(nn.Module):
-    def __init__(self, modes, width, fc_dim, inputDim, outputDim, task_number, layers=None):
+    def __init__(self, modes, depth, width, fc_dim, fc_dep, inputDim, outputDim, task_number, layers=None):
         super(FNN1d_HM, self).__init__()
 
         """
@@ -498,7 +643,7 @@ class FNN1d_HM(nn.Module):
         self.outputDim = outputDim
 
         if layers is None:
-            layers = [width] * 4
+            layers = [width] * (depth + 1)
 
         self.fc0 = nn.Linear(self.inputDim, layers[0])  # input channel is 2: (a(x), x)
 
@@ -509,18 +654,26 @@ class FNN1d_HM(nn.Module):
                                  for in_size, out_size in zip(layers, layers[1:])])
 
         self.fc_width = fc_dim
-        self.fc1 = nn.Linear(layers[-1], self.fc_width)
-        self.fc2 = nn.Linear(self.fc_width, self.fc_width)
-        self.fc3 = nn.Linear(self.fc_width, self.fc_width)
-        self.fc4 = nn.Linear(self.fc_width, self.outputDim)
+        self.fc_dep = fc_dep
+        if fc_dep > 2:
+            layers_fcn = [fc_dim] * (fc_dep - 2 + 1)
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(in_size, out_size) for in_size, out_size in
+                                       zip(layers_fcn, layers_fcn[1:])] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
+        elif fc_dep == 2:
+            self.fcns = nn.ModuleList([nn.Linear(layers[-1], self.fc_width)] +
+                                      [nn.Linear(self.fc_width, self.outputDim)])
 
-        self.bn1 = nn.BatchNorm1d(2500)
-        self.bnW = nn.BatchNorm1d(width)
-        self.dropout = nn.Dropout(p=0.5)
+        # self.fc1 = nn.Linear(layers[-1], self.fc_width)
+        # self.fc2 = nn.Linear(self.fc_width, self.fc_width)
+        # self.fc3 = nn.Linear(self.fc_width, self.fc_width)
+        # self.fc4 = nn.Linear(self.fc_width, self.outputDim)
         self.task_weights = torch.nn.Parameter(torch.ones(task_number).float())
 
     def forward(self, x):
         length = len(self.ws)
+        length_fcn = len(self.fcns)
 
         x = self.fc0(x)
         x = x.permute(0, 2, 1)
@@ -533,17 +686,22 @@ class FNN1d_HM(nn.Module):
                 x = F.elu(x)
 
         x = x.permute(0, 2, 1)
-        x = self.fc1(x)
-        x = F.elu(x)
-        x = self.fc2(x)
-        x = F.elu(x)
-        x = self.fc3(x)
-        x = F.elu(x)
-        x = self.fc4(x)
+
+        for i, fcn in enumerate(self.fcns):
+            x = fcn(x)
+            if i != length_fcn - 1:
+                x = F.elu(x)
+        # x = self.fc1(x)
+        # x = F.elu(x)
+        # x = self.fc2(x)
+        # x = F.elu(x)
+        # x = self.fc3(x)
+        # x = F.elu(x)
+        # x = self.fc4(x)
         return x
 
     def get_last_layer(self):
-        return self.fc4
+        return self.fc3
 
 
 class CNN_GRU(nn.Module):
@@ -606,3 +764,74 @@ class CNN_GRU(nn.Module):
     def init_CNN(self, net):
         nn.init.kaiming_uniform_(net.weight)
         return net
+
+
+class FNN1d_FOB_v1(nn.Module):
+    def __init__(self, modes, width, fc_dim, inputDim, outputDim, task_number, layers=None):
+        super(FNN1d_FOB_v1, self).__init__()
+
+        """
+        The overall network. It contains several layers of the Fourier layer.
+        1. Lift the input to the desire channel dimension by self.fc0 .
+        2. 4 layers of the integral operators u' = (W + K)(u).
+            W defined by self.w; K defined by self.conv .
+        3. Project from the channel space to the output space by self.fc1 and self.fc2 .
+
+        input: the solution of the initial condition and location (a(x), x)
+        input shape: (batchsize, x=s, c=2)
+        output: the solution of a later timestep
+        output shape: (batchsize, x=s, c=1)
+        """
+
+        self.modes1 = modes
+        self.width = width
+        self.inputDim = inputDim
+        self.outputDim = outputDim
+
+        if layers is None:
+            layers = [width] * 3
+
+        self.fc0 = nn.Linear(self.inputDim, layers[0])  # input channel is 2: (a(x), x)
+
+        self.sp_convs = nn.ModuleList([SpectralConv1d(
+            in_size, out_size, self.modes1) for in_size, out_size in zip(layers, layers[1:])])
+
+        self.ws = nn.ModuleList([nn.Conv1d(in_size, out_size, 1)
+                                 for in_size, out_size in zip(layers, layers[1:])])
+
+        self.fc_width = fc_dim
+        self.fc1 = nn.Linear(layers[-1], self.fc_width)
+        self.fc2 = nn.Linear(self.fc_width, self.fc_width)
+        self.fc3 = nn.Linear(self.fc_width, self.fc_width)
+        self.fc4 = nn.Linear(self.fc_width, self.outputDim)
+
+        self.bn1 = nn.BatchNorm1d(2500)
+        self.bnW = nn.BatchNorm1d(width)
+        self.dropout = nn.Dropout(p=0.5)
+        self.task_weights = torch.nn.Parameter(torch.ones(task_number).float())
+
+    def forward(self, x):
+        length = len(self.ws)
+
+        x = self.fc0(x)
+        x = x.permute(0, 2, 1)
+
+        for i, (speconv, w) in enumerate(zip(self.sp_convs, self.ws)):
+            x1 = speconv(x)
+            x2 = w(x)
+            x = x1 + x2
+            if i != length - 1:
+                x = F.elu(x)
+
+        x = x.permute(0, 2, 1)
+        x = self.fc1(x)
+        x = F.elu(x)
+        x = self.fc2(x)
+        x = F.elu(x)
+        x = self.fc3(x)
+        x = F.elu(x)
+        x = self.fc4(x)
+        return x
+
+    def get_last_layer(self):
+        return self.fc4
