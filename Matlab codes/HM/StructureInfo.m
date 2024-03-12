@@ -1,0 +1,9 @@
+TrackDOF_p1=reshape(TrackDOFs1(1:3,:),1,9);
+TrackDOF_p2=reshape(TrackDOFs1(4:6,:),1,9);
+TrackDOF_p3=reshape(TrackDOFs2,1,9);
+W2_1=W21(TrackDOF_p1,:);
+W2_2=W21(TrackDOF_p2,:);
+W2_3=W22(TrackDOF_p3,:);
+Eigens2_1=Eigens21;
+Eigens2_2=Eigens22;
+save('StructureInfo.mat','Eigens2_1','Eigens2_2','W2_1','W2_2','W2_3','-v7.3');
